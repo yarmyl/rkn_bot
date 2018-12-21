@@ -4,13 +4,14 @@
 import requests
 import argparse
 
+
 def readToken(file_name):
     try:
         file = open(file_name, 'r')
     except:
         raise SystemExit("Fail to read token file")
     return file.read()
-    
+
 def createParser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--conf', nargs='?')
@@ -21,7 +22,7 @@ def req(url, method, data=[], req_method=0):
         r = requests.get(url+method, data=data)
     elif req_method == 1:
         headers = {
-            'content-type': 'application/json', 
+            'content-type': 'application/json',
             'Accept-Charset': 'UTF-8'
         }
         r = requests.post(url+method, data=data)
@@ -29,11 +30,19 @@ def req(url, method, data=[], req_method=0):
         print("Wrong method!")
     return r.json()
 
+
 class Bot:
 
     HELP = [
         '/start - Enjoy\n',
-        '/help - This message\n'
+        '/help - This message\n',
+        '/show [cur|new] - Show statistics by new or current rules\n',
+        '/check - Check Difference between current and new rules\n',
+        '/apply - Apply new rules\n',
+        '/update - Update new rules\n',
+        '/search [IP] [cur|new] - Search IP in current and old rules\n',
+        '/add [IP] - Proxy IP to tor\n',
+        '/del [IP] - Remove IP to tor\n'
     ]
 
     def __init__(self, token):
@@ -42,7 +51,7 @@ class Bot:
         self.last_id = None
         if not self.checkToken():
             raise SystemExit("Bad token")
-        
+
     def checkToken(self):
          return req(self.__URL, "getMe")['ok']
 
@@ -52,22 +61,22 @@ class Bot:
                 offset = None
             offset = self.last_id
         data = req(
-            self.__URL, 
-            "getUpdates", 
-            {'timeout': timeout, 'offset': offset}, 
+            self.__URL,
+            "getUpdates",
+            {'timeout': timeout, 'offset': offset},
             1
         )['result']
         if data:
             self.last_id = int(self.getLastUpdate(data)['update_id']) + 1
         return data
-        
+
     def getLastUpdate(self, data):
         if len(data) > 0:
             last_update = data[-1]
         else:
             last_update = data[len(data)]
         return last_update
-    
+
     def sendMessage(self, text, chat_id):
         return req(
             self.__URL,
@@ -75,7 +84,7 @@ class Bot:
             {'chat_id': chat_id, 'text': text},
             1
         )
-        
+
     def botBrain(self, text, chat_id):
         if text == "/help":
             self.sendMessage(
@@ -84,18 +93,38 @@ class Bot:
             )
         elif text == "/start":
             self.sendMessage("Please, use /help", chat_id)
+        elif text[:5] == "/show":
+            pass
+        elif text == "/check":
+            pass
+        elif text == "/apply":
+            pass
+        elif text == "/update":
+            pass
+        elif text[:7] == "/search":
+            pass
+        elif text[:4] == "/add":
+            pass
+        elif text[:4] == "/del":
+            pass
 
     def parseMess(self, data):
         for mess in data:
-            self.botBrain(mess['message']['text'], 
-                mess['message']['chat']['id'])
+            if mess.get('message'):
+                self.botBrain(
+                    mess['message']['text'],
+                    mess['message']['chat']['id']
+                )
+
 
 def main():
     parser = createParser()
     namespace = parser.parse_args()
-    bot = Bot(readToken(namespace.conf)[:-1]) if namespace.conf else Bot(readToken('token.conf')[:-1])
+    bot = Bot(readToken(namespace.conf)[:-1]) \
+        if namespace.conf else Bot(readToken('token.conf')[:-1])
     while 1:
         bot.parseMess(bot.getUpdates())
+
 
 if __name__ == "__main__":
     main()
