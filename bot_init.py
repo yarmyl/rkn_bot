@@ -123,6 +123,7 @@ class Bot:
         elif text[:5] == "/show":
             pass
         elif text == "/check":
+            self.sendMessage("It's Done!", chat_id)
             self.checkRules()
         elif text == "/apply":
             self.applyRules()
