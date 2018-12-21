@@ -3,6 +3,8 @@
 
 import requests
 import argparse
+import configparser
+import os
 
 
 def readToken(file_name):
@@ -30,6 +32,15 @@ def req(url, method, data=[], req_method=0):
         print("Wrong method!")
     return r.json()
 
+def getSettings(config):
+    settings = dict()
+    for section in config.sections():
+        value = dict()
+        for setting in config[section]:
+            value.update({setting: config.get(section, setting)})
+        settings.update({section: value})
+    return settings
+
 
 class Bot:
 
@@ -45,15 +56,31 @@ class Bot:
         '/del [IP] - Remove IP to tor\n'
     ]
 
-    def __init__(self, token):
-        self.__URL = "https://api.telegram.org/bot" + token + '/'
-        self.__token = token
+    def __init__(self, conf):
+        self.__token = conf['token']
+        self.__update = conf['update']
+        self.__ipset = conf['ipset']
+        self.__url = "https://api.telegram.org/bot" + self.__token + '/'
         self.last_id = None
+        self.updateRules()
         if not self.checkToken():
             raise SystemExit("Bad token")
 
     def checkToken(self):
-         return req(self.__URL, "getMe")['ok']
+         return req(self.__url, "getMe")['ok']
+
+    def updateRules(self):
+        os.system('wget -O black_nets.list ' + self.__update)
+        
+    def applyRules(self):
+        os.system('cp black_nets.list cur.list')
+        os.system('sudo ipset flush ' + self.__ipset)
+        os.system("cat cur.list | sed 's/^/add " + self.__ipset + " /g' > rules.list")
+        os.system('sudo ipset restore < rules.list')
+
+    def checkRules(self):
+        self.updateRules()
+        os.system('diff black_nets.list cur.list')
 
     def getUpdates(self, offset=None, timeout=300):
         if not offset:
@@ -61,7 +88,7 @@ class Bot:
                 offset = None
             offset = self.last_id
         data = req(
-            self.__URL,
+            self.__url,
             "getUpdates",
             {'timeout': timeout, 'offset': offset},
             1
@@ -79,7 +106,7 @@ class Bot:
 
     def sendMessage(self, text, chat_id):
         return req(
-            self.__URL,
+            self.__url,
             "sendMessage",
             {'chat_id': chat_id, 'text': text},
             1
@@ -96,11 +123,13 @@ class Bot:
         elif text[:5] == "/show":
             pass
         elif text == "/check":
-            pass
+            self.checkRules()
         elif text == "/apply":
-            pass
+            self.applyRules()
+            self.sendMessage("It's Done!", chat_id)
         elif text == "/update":
-            pass
+            self.updateRules()
+            self.sendMessage("It's Done!", chat_id)
         elif text[:7] == "/search":
             pass
         elif text[:4] == "/add":
@@ -120,8 +149,11 @@ class Bot:
 def main():
     parser = createParser()
     namespace = parser.parse_args()
-    bot = Bot(readToken(namespace.conf)[:-1]) \
-        if namespace.conf else Bot(readToken('token.conf')[:-1])
+    parser = configparser.ConfigParser()
+    parser.read(namespace.conf) \
+        if namespace.conf else parser.read('token.conf')
+    settings = getSettings(parser)
+    bot = Bot(settings['CONF'])
     while 1:
         bot.parseMess(bot.getUpdates())
 
