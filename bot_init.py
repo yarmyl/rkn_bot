@@ -5,6 +5,8 @@ import requests
 import argparse
 import configparser
 import os
+from netaddr import *
+from subprocess import Popen, PIPE
 
 
 def readToken(file_name):
@@ -63,11 +65,17 @@ class Bot:
         self.__url = "https://api.telegram.org/bot" + self.__token + '/'
         self.last_id = None
         self.updateRules()
+        self.replyHi(self.getLastUpdate(self.getUpdates(None, 0)))
         if not self.checkToken():
             raise SystemExit("Bad token")
 
     def checkToken(self):
          return req(self.__url, "getMe")['ok']
+
+    def replyHi(self, data):
+        if data.get('message'):
+            self.sendMessage("Hi, sorry, I'm alive", \
+                data['message']['chat']['id'])
 
     def updateRules(self):
         os.system('wget -O black_nets.list ' + self.__update)
@@ -80,7 +88,21 @@ class Bot:
 
     def checkRules(self):
         self.updateRules()
-        os.system('diff black_nets.list cur.list')
+        out, err = Popen('diff cur.list black_nets.list', \
+            shell=True, stdout=PIPE).communicate()
+        return out
+        
+    def showRules(self, list):
+        file_name = 'cur.list' if list == 'cur' else 'black_net.list'
+        try:
+            file = open(file_name, 'r')
+        except:
+            raise SystemExit("Fail to read token file")
+        net_list = []
+        for net in file:
+            net_list.append(IPNetwork(net[:-1]))
+        cidr_merger(net_list)
+        print(net_list)
 
     def getUpdates(self, offset=None, timeout=300):
         if not offset:
@@ -101,7 +123,7 @@ class Bot:
         if len(data) > 0:
             last_update = data[-1]
         else:
-            last_update = data[len(data)]
+            last_update = {}
         return last_update
 
     def sendMessage(self, text, chat_id):
@@ -122,9 +144,9 @@ class Bot:
             self.sendMessage("Please, use /help", chat_id)
         elif text[:5] == "/show":
             pass
+#            self.showRules()
         elif text == "/check":
-            self.sendMessage("It's Done!", chat_id)
-            self.checkRules()
+            self.sendMessage(self.checkRules(), chat_id)
         elif text == "/apply":
             self.applyRules()
             self.sendMessage("It's Done!", chat_id)
