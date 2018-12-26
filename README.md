@@ -46,12 +46,12 @@ optional arguments:
 @BotFather This [instruction](https://core.telegram.org/bots) with commands in **commands** file
 
 ## Config
-
+```
 [CONF]
 TOKEN=[your token]
 UPDATE=https://github.com/yarmyl/black_nets/raw/master/black_nets.list
 IPSET=black_list
-
+```
 ## Start
 
 systemctl start rkn_bot
