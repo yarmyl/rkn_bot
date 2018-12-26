@@ -22,7 +22,6 @@ After=networking.service
 
 [Service]
 Type=simple
-RemainAfterExit=yes
 WorkingDirectory=[dir]/rkn_bot/
 ExecStart=/usr/bin/python3 bot_init.py 
 PIDFile=/run/bot.pid
