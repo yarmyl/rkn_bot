@@ -125,12 +125,12 @@ class Bot:
     """Apply new rules"""
     def applyRules(self):
         os.system('cp black_nets.list cur.list')
-        os.system('sudo ipset flush ' + self.__ipset)
+        os.system('ipset flush ' + self.__ipset)
         os.system(
             "cat cur.list | sed 's/^/add " + self.__ipset +
             " /g' > rules.list"
         )
-        os.system('sudo ipset restore < rules.list')
+        os.system('ipset restore < rules.list')
 
     """Check Difference between current and new rules"""
     def checkRules(self):
@@ -209,7 +209,7 @@ class Bot:
             os.system('echo ' + ip + ' >> ' + file_name)
         elif cmd == 'del':
             os.system("sed -i '/^" + ip + "$/d' " + file_name)
-        os.system('sudo ipset ' + cmd + ' ' + list + ' ' + ip)
+        os.system('ipset ' + cmd + ' ' + list + ' ' + ip)
 
     """Show full list"""
     def showAll(self, list):
