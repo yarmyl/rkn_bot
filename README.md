@@ -53,9 +53,9 @@ UPDATE=https://github.com/yarmyl/black_nets/raw/master/black_nets.list
 IPSET=black_list
 ```
 ## Start
-
+```
 systemctl start rkn_bot
-
+```
 ## Proxy
 
-use /autoinstall
+use */autoinstall*
