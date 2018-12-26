@@ -6,8 +6,8 @@ touch cur.list tor.list white.list
 sudo apt update
 
 # install python
-sudo apt install -y python3 python3-pip git
-pip3 install netaddr
+### sudo apt install -y python3 python3-pip git
+### pip3 install netaddr
 
 # install Docker
 sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
