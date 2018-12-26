@@ -57,4 +57,4 @@ systemctl start rkn_bot
 ```
 ## Proxy
 
-use */autoinstall*
+first time use */autoinstall*
