@@ -1,0 +1,11 @@
+help - Help
+start - Start this bot
+show - Show Statistics
+check - Check Difference
+apply - Apply new rules
+update - Update new rules
+search - Search IP in rules
+add - Proxy IP
+del - Past proxy IP
+showall - Show full list
+autoinstall - Install dockertor

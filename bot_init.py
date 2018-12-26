@@ -89,7 +89,8 @@ class Bot:
         '/search [IP] [cur|new|tor|w] - Search IP in current and old rules\n',
         '/add [IP] [tor|w] - Add IP to list\n',
         '/del [IP] [tor|w] - Remove IP from list\n',
-        '/showall [tow|w] - Show list'
+        '/showall [tow|w] - Show list\n',
+        '/autoinstall - Auto proxy install\n'
     ]
 
     """Bot init"""
@@ -190,6 +191,11 @@ class Bot:
         size = len(nets)
         nets.append(IPAddress(ip))
         return 1 if size == len(cidr_merge(nets)) else 0
+
+    """Tor auto install"""
+    def autoInstall(self):
+        os.system('./auto_install.sh')
+        return "Done!"
 
     """Add or Del rules in ipset"""
     def fixIP(self, ip, list, cmd):
@@ -377,6 +383,11 @@ class Bot:
                         )
                     return 1
             self.sendMessage("WTF?!", chat_id, self.rm_keyboard)
+        elif text[:12] == "/autoinstall":
+            self.sendMessage(
+                self.autoInstall(),
+                chat_id
+            )
 
     """Parse Messages in Update"""
     def parseMess(self, data):
