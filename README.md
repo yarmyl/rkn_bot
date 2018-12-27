@@ -58,3 +58,11 @@ systemctl start rkn_bot
 ## Proxy
 
 first time use */autoinstall*
+
+## Troubles
+
+sometimes You may need this rule
+```
+iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 5300
+```
+redirect all DNS packets to Tor
