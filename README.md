@@ -23,6 +23,7 @@ optional arguments:
 ```
 [CONF]
 TOKEN=[your token]
+[BRAIN]
 UPDATE=https://github.com/yarmyl/black_nets/raw/master/black_nets.list
 IPSET=black_list
 ```
