@@ -29,7 +29,7 @@ IPSET=black_list
 ```
 ## Start
 ```
-systemctl start rkn_bot
+sudo systemctl start rkn_bot
 ```
 ## Proxy
 
