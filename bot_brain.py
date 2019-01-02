@@ -165,7 +165,10 @@ class Brain:
 
     """Bot Brain"""
     def botBrain(self, text):
-        args, cmd = self.parseArgs(text)
+        if text[0] == "/":
+            args, cmd = self.parseArgs(text)
+        else:
+            return (None, None)
         if cmd == "/help":
             return (''.join(self.HELP), None)
         elif cmd == "/start":
